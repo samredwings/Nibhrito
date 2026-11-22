@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Story Companion — Master Build Blueprint v2.0</title>
+<meta name="description" content="Complete product and engineering blueprint for a private, Android-first, free-tier AI story companion: feature catalogue with acceptance criteria, architecture, memory and language engines, provider strategy, phased roadmap, and governance rules.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1b20; --panel:#14282e; --panel2:#1b343a; --ink:#edf4f1; --muted:#b2c3c0;
+  --teal:#72d4c3; --amber:#e5b36b; --line:rgba(224,243,238,.15);
+  --soft:rgba(114,212,195,.10); --warm:rgba(229,179,107,.10);
+  --s0:clamp(.96rem,.92rem+.25vw,1.06rem); --s1:clamp(1.18rem,1.06rem+.5vw,1.42rem);
+  --s2:clamp(1.5rem,1.24rem+1vw,2.05rem); --s3:clamp(2.2rem,1.6rem+2.4vw,3.7rem);
+  --space:clamp(1rem,.75rem+1vw,1.55rem); --r:14px;
+  --shadow:0 1px 2px rgba(0,0,0,.18),0 18px 40px -26px rgba(0,0,0,.75);
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--s0)/1.7 "IBM Plex Sans","Noto Sans Bengali","Hiragino Sans","Yu Gothic",sans-serif}
+a{color:var(--teal);text-underline-offset:.2em} a:hover{color:#a0eadc}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px;border-radius:4px}
+.wrap{width:min(1140px,calc(100% - 2*var(--space)));margin:auto}
+.topline{border-bottom:1px solid var(--line);padding:.8rem 0;color:var(--muted);font:500 .74rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;display:flex;gap:1.2rem;flex-wrap:wrap}
+.topline span:last-child{margin-left:auto}
+.hero{padding:clamp(2.6rem,7vw,6rem) 0 2.6rem;position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;right:-15vw;top:1rem;width:min(58vw,650px);aspect-ratio:1;border:1px solid rgba(114,212,195,.15);border-radius:50%;box-shadow:0 0 0 36px rgba(114,212,195,.025),0 0 0 72px rgba(229,179,107,.025);pointer-events:none}
+.eyebrow{color:var(--amber);font:600 .76rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase}
+h1,h2,h3,h4{line-height:1.15;letter-spacing:-.03em;margin:0 0 .7em}
+h1{font-size:var(--s3);max-width:880px;margin:.7rem 0 1rem;font-weight:700}
+h2{font-size:var(--s2);margin-bottom:.5em}
+h3{font-size:var(--s1);letter-spacing:-.02em;margin:1.4rem 0 .45em}
+h4{font-size:1.02rem;margin:1rem 0 .35rem;color:var(--teal)}
+p{margin:.4rem 0 1rem;color:var(--muted)} strong{color:var(--ink)}
+.lede{font-size:var(--s1);line-height:1.55;max-width:800px;color:#d5e4e0}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:2rem;align-items:end;margin-top:2rem;position:relative}
+.thesis{border-left:3px solid var(--teal);padding:.3rem 0 .3rem 1rem;max-width:50rem;color:var(--ink)}
+.snapshot{border:1px solid var(--line);background:linear-gradient(145deg,var(--panel),rgba(20,40,46,.72));border-radius:var(--r);padding:1.2rem 1.35rem;box-shadow:var(--shadow)}
+.snapshot .tag{font:500 .72rem "IBM Plex Mono",monospace;color:var(--amber);text-transform:uppercase;letter-spacing:.08em}
+.snapshot ul{margin:.6rem 0 0;padding-left:1.1rem;font-size:.9rem}
+.snapshot li{margin:.15rem 0;color:var(--muted)} .snapshot b{color:var(--ink)}
+nav{display:flex;gap:.5rem;flex-wrap:wrap;padding:1rem 0 1.25rem;border-bottom:1px solid var(--line)}
+nav a{font-size:.82rem;text-decoration:none;color:var(--muted);border:1px solid var(--line);padding:.36rem .68rem;border-radius:999px}
+nav a:hover{border-color:var(--teal);color:var(--ink)}
+main{padding-bottom:4rem}
+section{padding:2.8rem 0;border-bottom:1px solid var(--line)}
+.section-head{display:grid;grid-template-columns:96px minmax(0,1fr);gap:1rem;align-items:start;margin-bottom:1.3rem}
+.section-code{color:var(--amber);font:500 .77rem/1.6 "IBM Plex Mono",monospace;padding-top:.4rem}
+.section-head p{max-width:800px;margin:.25rem 0 0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.panel{border:1px solid var(--line);border-radius:var(--r);padding:1.1rem 1.2rem;background:var(--panel);box-shadow:var(--shadow)}
+.panel p:last-child,.panel ul:last-child,.panel ol:last-child{margin-bottom:0}
+.panel .micro{font:500 .71rem/1.45 "IBM Plex Mono",monospace;color:var(--teal);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem}
+.warn{border-left:3px solid var(--amber);background:var(--warm);padding:1rem 1.15rem;border-radius:0 var(--r) var(--r) 0;margin:1.2rem 0}
+.warn p{margin:.35rem 0 0}
+.good{border-left:3px solid var(--teal);background:var(--soft);padding:1rem 1.15rem;border-radius:0 var(--r) var(--r) 0;margin:1.2rem 0}
+.good p{margin:.35rem 0 0}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);margin:1rem 0}
+table{width:100%;border-collapse:collapse;min-width:640px;background:rgba(20,40,46,.72)}
+th,td{text-align:left;padding:.72rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .7rem "IBM Plex Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--amber);background:var(--panel2)}
+td{color:var(--muted);font-size:.9rem;line-height:1.55} td:first-child{color:var(--ink);font-weight:600} tr:last-child td{border-bottom:0}
+.feat td:first-child{white-space:nowrap;font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--teal)}
+code,pre{font-family:"IBM Plex Mono",monospace} code{font-size:.87em;color:#b9eee4;background:rgba(114,212,195,.09);padding:.1em .32em;border-radius:4px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#091418;border:1px solid var(--line);padding:1rem;border-radius:var(--r);color:#c8d9d5;font-size:.78rem;line-height:1.65}
+ul,ol{padding-left:1.25rem;color:var(--muted)} li{margin:.35rem 0}
+.pill{display:inline-block;border-radius:999px;padding:.1rem .5rem;font:600 .68rem "IBM Plex Mono",monospace;white-space:nowrap}
+.p0{background:rgba(114,212,195,.18);color:var(--teal);border:1px solid rgba(114,212,195,.4)}
+.p1{background:rgba(229,179,107,.16);color:var(--amber);border:1px solid rgba(229,179,107,.4)}
+.p2{background:rgba(178,195,192,.12);color:var(--muted);border:1px solid var(--line)}
+.p3{color:var(--muted);border:1px dashed var(--line)}
+.flow{display:grid;grid-template-columns:repeat(3,1fr) minmax(210px,1.15fr);gap:.8rem;margin:1.3rem 0}
+.flow-item{border:1px solid var(--line);padding:.95rem;border-radius:12px;background:var(--panel);position:relative}
+.flow-item:not(:last-child):after{content:"→";position:absolute;right:-.78rem;top:45%;z-index:2;color:var(--amber);font:600 1.2rem "IBM Plex Mono",monospace}
+.flow-item strong{display:block;margin-bottom:.2rem} .flow-item small{color:var(--muted);line-height:1.45;display:block}
+.flow-item.shared{background:var(--soft);border-color:rgba(114,212,195,.4)}
+.phase{display:grid;grid-template-columns:130px 1fr;gap:1rem;padding:1.1rem 0;border-top:1px solid var(--line)}
+.phase:first-of-type{border-top:0} .phase-label{font:500 .75rem/1.55 "IBM Plex Mono",monospace;color:var(--amber);text-transform:uppercase}
+.phase h3{margin:.05rem 0 .4rem} .phase p{margin:.3rem 0}
+.check{color:var(--teal);font-weight:700}
+.task{display:grid;grid-template-columns:70px 1fr;gap:.8rem;padding:.6rem 0;border-top:1px solid var(--line)}
+.task:first-child{border-top:0} .task-id{font:600 .78rem "IBM Plex Mono",monospace;color:var(--teal);padding-top:.15rem}
+.task strong{display:block} .task small{color:var(--muted);line-height:1.5;display:block;margin-top:.15rem}
+.task small b{color:var(--amber);font-weight:600}
+.footer{padding:2rem 0 3.5rem;color:var(--muted);font-size:.86rem}
+.small{font-size:.84rem} .source-list li{overflow-wrap:anywhere}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:.3rem 1rem;font-size:.92rem;margin:0}
+.kv dt{color:var(--amber);font:500 .78rem/1.9 "IBM Plex Mono",monospace} .kv dd{margin:0;color:var(--muted)}
+@media(max-width:820px){.hero-grid,.grid3{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.flow-item:not(:last-child):after{content:"↓";right:50%;top:auto;bottom:-1.05rem}.section-head{grid-template-columns:60px 1fr}.phase{grid-template-columns:92px 1fr}.task{grid-template-columns:56px 1fr}.hero:before{right:-45vw;width:90vw}}
+@media(max-width:430px){.section-head{display:block}.section-code{margin-bottom:.5rem}.phase{grid-template-columns:1fr;gap:.2rem}.topline{font-size:.65rem}.topline span:last-child{margin-left:0}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{body{background:#fff;color:#17252a;font-size:9.5pt}body,p,td,li,dd,small{color:#34464a}h1,h2,h3,h4,strong,td:first-child,.task strong{color:#17252a}.topline,nav,.hero:before{display:none}.hero,section{padding:1rem 0}.panel,.snapshot,.flow-item,table,pre{background:#fff;box-shadow:none;border-color:#aebbb9}.eyebrow,.section-code,th,.phase-label,.kv dt,.task-id{color:#75501b}.pill{border-color:#75501b;color:#75501b;background:#fff}.warn,.good{border-color:#75501b;background:#faf6ef}.phase,.task,.door{break-inside:avoid}a{color:#155e56;text-decoration:underline}@page{size:A4;margin:15mm}}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="topline"><span>Master build specification</span><span>v2.0 · single source of truth</span><span>supersedes all earlier blueprints</span></div>
+  <div class="hero">
+    <div class="eyebrow">One engine · three doors · everything on the record</div>
+    <h1>AI Story Companion<br>Master Build Blueprint</h1>
+    <p class="lede">The complete product and engineering plan for a private, Android-first, zero-cost AI story companion: every requested feature catalogued with acceptance criteria, one shared session architecture, the memory and Bengali engines, the multi-provider AI strategy, a phased delivery roadmap, and the governance rules that stop another silent rebuild.</p>
+    <div class="hero-grid">
+      <p class="thesis"><strong>The heart of the app is one conversation engine with durable memory.</strong> Three start modes, multi-character casts, voice, calls, and POV scenes are presentation layers on that engine — never separate apps, never separate memory. Continuity is built and verified first; presence and generated media attach to it later.</p>
+      <aside class="snapshot"><div class="tag">At a glance</div>
+        <ul><li><b>34</b> features catalogued, each with a testable acceptance criterion</li><li><b>5</b> delivery phases, each with an exit gate</li><li><b>24</b> numbered tasks ready for AI-agent execution</li><li><b>4</b> provider classes — <b>0</b> paid dependencies required</li><li><b>1</b> codebase to rule them all: current repo stabilized, not rewritten</li></ul>
+      </aside>
+    </div>
+  </div>
+  <nav aria-label="Document contents">
+    <a href="#s01">Product</a><a href="#s02">Features</a><a href="#s03">Architecture</a><a href="#s04">Data model</a><a href="#s05">Memory engine</a><a href="#s06">AI providers</a><a href="#s07">Bengali</a><a href="#s08">Presence</a><a href="#s09">Android</a><a href="#s10">Cost</a><a href="#s11">Roadmap</a><a href="#s12">Governance</a><a href="#s13">Risks</a><a href="#s14">Appendix</a>
+  </nav>
+</header>
+<main class="wrap">
+
+<section id="s01">
+  <div class="section-head"><div class="section-code">01 / product</div><div><h2>Product definition and boundaries</h2><p>A single-user, locally controlled creative companion — not a social platform, not a research lab, not a collection of disconnected feature screens.</p></div></div>
+  <div class="grid3">
+    <article class="panel"><div class="micro">What it is</div><p>An Android-first app where the owner creates or imports fictional adult characters, plays open-ended or story-led roleplay with one or several of them, talks by voice, and views immersive first-person scenes — with memory that survives restarts.</p></article>
+    <article class="panel"><div class="micro">What it is not</div><p>Not a trained-from-scratch model (it directs existing open models), not a public service (no other users, no signup funnel), and not a promise of photorealistic free video — the deferred list in §14 is explicit about that.</p></article>
+    <article class="panel"><div class="micro">Hard boundaries</div><p>Fictional adult characters only; the owner supplies or licenses every imported story and reference image; content stays within local law; no real-person likenesses without rights; every claim the UI makes (memory used, provider chosen, data leaving the device) must be true.</p></article>
+  </div>
+  <dl class="kv" style="margin-top:1.2rem">
+    <dt>Owner</dt><dd>Single user, product owner, and operator of the AI coding agent — one person.</dd>
+    <dt>Budget</dt><dd>Zero recurring cost. Free tiers and owner hardware only. Paid upgrades are never required for the core loop.</dd>
+    <dt>Platforms</dt><dd>Android (daily use) + desktop browser (authoring and administration). One codebase.</dd>
+    <dt>Source</dt><dd>Current live repository, stabilized and consolidated — not a rewrite. History: three earlier codebases exist; §12 decides what survives.</dd>
+    <dt>Success metric</dt><dd>A session reopened after a week still knows the characters, the facts, and where the story left off — provable by test, not by README.</dd>
+  </dl>
+</section>
+
+<section id="s02">
+  <div class="section-head"><div class="section-code">02 / catalogue</div><div><h2>Complete feature catalogue</h2><p>Every requested feature, numbered and owned. Priority is the build phase: <span class="pill p0">P0</span> core loop · <span class="pill p1">P1</span> modes &amp; continuity · <span class="pill p2">P2</span> language &amp; presence · <span class="pill p3">P3</span> advanced. Nothing is deleted from scope; low-priority items are scheduled, not dropped.</p></div></div>
+
+  <h3>A · Character &amp; cast</h3>
+  <div class="table-wrap"><table class="feat"><thead><tr><th>ID</th><th>Feature</th><th>What it does</th><th>Acceptance criterion (verified when…)</th><th>Pri</th></tr></thead><tbody>
+  <tr><td>F-01</td><td>Character creation</td><td>Full persona builder: name, age (adult), appearance, personality, backstory, voice style, boundaries, preferences, default language.</td><td>…a character is created, edited, deleted, and reloaded with every field intact.</td><td><span class="pill p0">P0</span></td></tr>
+  <tr><td>F-02</td><td>Visual identity</td><td>Attach an uploaded image/video as reference, or generate a portrait from a description; store a visual profile sheet per character.</td><td>…a reference asset is attached, shown in chat headers, and survives app restarts.</td><td><span class="pill p0">P0</span></td></tr>
+  <tr><td>F-03</td><td>Cast &amp; relationships</td><td>Define several characters and named relationships between them; relationships are queryable context.</td><td>…a cast of 3+ characters with relationships round-trips through the API.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-04</td><td>Character templates</td><td>Save a character as a template; duplicate into new sessions.</td><td>…a duplicated character starts a session with independent memory.</td><td><span class="pill p2">P2</span></td></tr>
+  </tbody></table></div>
+
+  <h3>B · Sessions &amp; chat</h3>
+  <div class="table-wrap"><table class="feat"><thead><tr><th>ID</th><th>Feature</th><th>What it does</th><th>Acceptance criterion</th><th>Pri</th></tr></thead><tbody>
+  <tr><td>F-05</td><td>Mode 1 — character-first</td><td>Pick a character and a premise; open-ended roleplay where the plot can turn anywhere.</td><td>…a session started this way continues across restarts with full history.</td><td><span class="pill p0">P0</span></td></tr>
+  <tr><td>F-06</td><td>Mode 2 — story-first</td><td>Import a story the owner controls; map characters; play through it as a living scene that can diverge on request.</td><td>…an imported story is chunked, searchable, and its excerpts appear in the prompt audit.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-07</td><td>Mode 3 — ensemble-first</td><td>Give several characters + relationships; the app drafts the scenario and starts the play.</td><td>…a generated scenario lists every cast member with a speaking turn in the first 10 messages.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-08</td><td>Streaming chat</td><td>Replies stream token-by-token; stop button; regenerate; retry on provider failure with a visible reason.</td><td>…a reply streams, is interruptible, and the saved message matches what was shown.</td><td><span class="pill p0">P0</span></td></tr>
+  <tr><td>F-09</td><td>Multi-character scenes</td><td>Several characters in one conversation with speaker labels, turn order, and per-character knowledge (who knows what).</td><td>…character A does not reveal a fact marked private to character B in a scripted test.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-10</td><td>Scene director</td><td>Tracks location, time, present characters, and scene state; user can change scene mid-session.</td><td>…a scene change is reflected in the next reply and the state panel.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-11</td><td>Interactive intimate scenes</td><td>A phase-gated scene engine driven by the written situation: intensity setting, escalation ladder, climax/release phase, aftercare — state machine, not canned text.</td><td>…a scripted scene walks all phases, respects the intensity setting, and logs each transition.</td><td><span class="pill p2">P2</span></td></tr>
+  <tr><td>F-12</td><td>Session control</td><td>Pause/resume, rename, archive, branch a session from any message, export a session as text.</td><td>…a branch diverges without mutating the original timeline.</td><td><span class="pill p1">P1</span></td></tr>
+  </tbody></table></div>
+
+  <h3>C · Continuity (the differentiator)</h3>
+  <div class="table-wrap"><table class="feat"><thead><tr><th>ID</th><th>Feature</th><th>What it does</th><th>Acceptance criterion</th><th>Pri</th></tr></thead><tbody>
+  <tr><td>F-13</td><td>Memory system</td><td>Typed memories (fact / episode / relationship / character / world) with importance, scope, and expiry; fully editable.</td><td>…memories are created, listed, edited, pinned, deleted — and deletion changes later replies.</td><td><span class="pill p0">P0</span></td></tr>
+  <tr><td>F-14</td><td>Memory audit</td><td>Every reply shows which memories and lore entries were injected; "remember this?" review for suggested facts.</td><td>…the audit list for a reply exactly matches what the context builder logged.</td><td><span class="pill p0">P0</span></td></tr>
+  <tr><td>F-15</td><td>Rolling summary</td><td>Compact conversation summary maintained in background; bounded context, never the whole transcript.</td><td>…a 200-message session's prompt stays within the token budget.</td><td><span class="pill p0">P0</span></td></tr>
+  <tr><td>F-16</td><td>Relationship growth</td><td>Affinity/intimacy levels and an event timeline per character–user pair; milestones and mood affect tone.</td><td>…a scripted interaction raises the tracked level and the reply tone measurably changes.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-17</td><td>Character learning</td><td>Characters accumulate attitudes, pet names, habits, and private jokes — user-approved, never silent.</td><td>…an approved learned trait appears in later replies; a rejected one never does.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-18</td><td>Lorebook</td><td>Keyword-triggered world entries with priority and scope, injected only when relevant.</td><td>…an entry triggers on its keyword and is absent from the audit when not triggered.</td><td><span class="pill p0">P0</span></td></tr>
+  </tbody></table></div>
+
+  <h3>D · Bengali &amp; language</h3>
+  <div class="table-wrap"><table class="feat"><thead><tr><th>ID</th><th>Feature</th><th>What it does</th><th>Acceptance criterion</th><th>Pri</th></tr></thead><tbody>
+  <tr><td>F-19</td><td>Standard Bengali output</td><td>Characters reply in চলিত মান বাংলা — standard written register, not regional dialect — with the requested genre vocabulary when the owner enables it.</td><td>…a 10-scenario evaluation set is scored by the owner and passes the agreed rubric.</td><td><span class="pill p2">P2</span></td></tr>
+  <tr><td>F-20</td><td>Story corpus library</td><td>Upload owner-controlled Bengali/English story files; Unicode-normalized, chunked, tagged, and retrieved as style/context excerpts (retrieval — not weight training).</td><td>…uploading a file makes its style observable in replies and auditable in the prompt.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-21</td><td>Style &amp; vocabulary controls</td><td>Editable style guide and vocabulary list per character/session; language switch mid-session.</td><td>…toggling language changes the reply language on the next turn.</td><td><span class="pill p2">P2</span></td></tr>
+  </tbody></table></div>
+
+  <h3>E · Presence (voice, call, POV)</h3>
+  <div class="table-wrap"><table class="feat"><thead><tr><th>ID</th><th>Feature</th><th>What it does</th><th>Acceptance criterion</th><th>Pri</th></tr></thead><tbody>
+  <tr><td>F-22</td><td>Voice notes</td><td>Push-to-talk in, spoken reply out, captions shown, text always available as fallback.</td><td>…a spoken exchange produces the same persisted turns as a typed one.</td><td><span class="pill p2">P2</span></td></tr>
+  <tr><td>F-23</td><td>Voice call mode</td><td>Continuous call UI on the same session engine: turn-taking, mute, end call, transcript saved as messages.</td><td>…a 5-minute call appends correctly ordered turns and ends cleanly on Android.</td><td><span class="pill p2">P2</span></td></tr>
+  <tr><td>F-24</td><td>Video-style call</td><td>Short "video calls": character portrait/avatar with audio-reactive motion — honest framing, not synthetic live video.</td><td>…a call runs 60+ seconds without frame drops on the target device.</td><td><span class="pill p3">P3</span></td></tr>
+  <tr><td>F-25</td><td>POV scene mode</td><td>Full-screen first-person presentation of the current scene: framing, motion, choices, scene state — the screen is the window, not a headset claim.</td><td>…entering POV mode shows the current scene state and exits without losing the timeline.</td><td><span class="pill p2">P2</span></td></tr>
+  </tbody></table></div>
+
+  <h3>F · Visual generation</h3>
+  <div class="table-wrap"><table class="feat"><thead><tr><th>ID</th><th>Feature</th><th>What it does</th><th>Acceptance criterion</th><th>Pri</th></tr></thead><tbody>
+  <tr><td>F-26</td><td>Scene &amp; portrait images</td><td>Optional image generation for portraits and scene beats, via the provider gateway, stored locally.</td><td>…a generated image is linked to the session and survives restart; failures surface honestly.</td><td><span class="pill p2">P2</span></td></tr>
+  <tr><td>F-27</td><td>Appearance consistency</td><td>Reference-conditioned generation from the character's visual profile; measured identity drift; LoRA training only as an owner-run experiment.</td><td>…same-character portraits are scored for consistency on a fixed test prompt set.</td><td><span class="pill p3">P3</span></td></tr>
+  </tbody></table></div>
+
+  <h3>G · Platform</h3>
+  <div class="table-wrap"><table class="feat"><thead><tr><th>ID</th><th>Feature</th><th>What it does</th><th>Acceptance criterion</th><th>Pri</th></tr></thead><tbody>
+  <tr><td>F-28</td><td>Provider panel</td><td>Local GGUF/Ollama, Hugging Face, and OpenRouter adapters with live capability and health display; explicit selection; no silent fallback.</td><td>…switching providers changes the next reply's metadata; a dead provider shows a recoverable error.</td><td><span class="pill p0">P0</span></td></tr>
+  <tr><td>F-29</td><td>Media library</td><td>All generated and uploaded assets in one gallery, linked to sessions/characters, deletable.</td><td>…deleting an asset removes it from storage and UI.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-30</td><td>Export / import everything</td><td>One-file backup of characters, sessions, memories, corpus, settings; restore on a fresh install.</td><td>…a round-trip export→wipe→import restores a working session with memory intact.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-31</td><td>Privacy indicators</td><td>Every reply badge shows: local or cloud, which provider, latency. Cloud use requires prior opt-in.</td><td>…a local reply never touches the network in a capture test.</td><td><span class="pill p0">P0</span></td></tr>
+  <tr><td>F-32</td><td>Settings &amp; tone controls</td><td>Intensity, verbosity, response style, auto-memory policy — all per session and per character.</td><td>…changing intensity alters the scene engine's escalation ladder measurably.</td><td><span class="pill p1">P1</span></td></tr>
+  <tr><td>F-33</td><td>Local auth</td><td>Single-owner local profile with PIN/biometric app lock; no public signup, no server accounts.</td><td>…wrong PIN blocks the app; correct PIN restores the session list.</td><td><span class="pill p0">P0</span></td></tr>
+  <tr><td>F-34</td><td>Job system</td><td>Persisted queue for long jobs (image, corpus processing) with progress, cancel, and retry.</td><td>…a cancelled job leaves no orphan rows or temp files.</td><td><span class="pill p2">P2</span></td></tr>
+  </tbody></table></div>
+  <div class="good"><strong>Traceability rule.</strong><p>A feature is DONE only when its acceptance criterion passes in a repeatable test or scripted walkthrough. A route, table, README bullet, or UI button alone marks it PLANNED or PARTIAL — the earlier codebases died of believing otherwise.</p></div>
+</section>
+
+<section id="s03">
+  <div class="section-head"><div class="section-code">03 / architecture</div><div><h2>System architecture — one modular monolith</h2><p>Keep the current repository and stack; reorganize into feature modules with strict boundaries. One API, one engine, many presentations.</p></div></div>
+  <div class="flow" aria-label="All entry modes converge into one engine">
+    <div class="flow-item"><strong>Character-first</strong><small>F-01, F-05</small></div>
+    <div class="flow-item"><strong>Story-first</strong><small>F-06, F-20</small></div>
+    <div class="flow-item"><strong>Ensemble-first</strong><small>F-03, F-07</small></div>
+    <div class="flow-item shared"><strong>Session engine</strong><small>context builder → provider gateway → persistence → memory update</small></div>
+  </div>
+  <div class="grid2">
+    <article class="panel"><div class="micro">The one response pipeline</div>
+      <ol><li>Validate session &amp; ownership</li><li>Assemble context (§05 order, token-budgeted)</li><li>Select provider (user's explicit choice)</li><li>Stream reply to client</li><li>Persist both turns, complete</li><li>Update rolling summary</li><li>Propose memory changes (review queue)</li><li>Return metadata: provider, model, latency, injected memories</li></ol>
+      <p class="small">Every mode, every medium — text, voice, POV — calls this pipeline. No mode has its own generation path.</p></article>
+    <article class="panel"><div class="micro">Target monorepo map</div>
+      <pre>apps/
+  web/        # Next.js UI + Capacitor Android shell (kept)
+  api/        # Express modular monolith (kept, reorganized)
+  worker/     # long jobs only when F-34 lands
+packages/
+  contracts/  # Zod schemas + shared types (single source)
+  domain/     # character, scene, memory, relationship rules
+  context-engine/  # prompt assembly, budgets, retrieval
+  ai-providers/    # ollama | gguf | hf | openrouter adapters
+  media/      # file validation, local storage
+docs/
+  FEATURES.v2.md  STATUS.md  ADR/  DATA-MIGRATION.md</pre></article>
+  </div>
+  <h3>API surface (v2 contract)</h3>
+  <div class="table-wrap"><table><thead><tr><th>Group</th><th>Endpoints</th><th>Notes</th></tr></thead><tbody>
+  <tr><td>Characters</td><td>CRUD + visual profile + templates</td><td>All owned by the single local user; ownership checks stay (cheap, future-proof)</td></tr>
+  <tr><td>Sessions</td><td>CRUD, participants, branch, archive, export</td><td>One session model for all three modes</td></tr>
+  <tr><td>Messages</td><td>list (paginated), send → generate, regenerate, edit-saved</td><td><strong>send is the wired pipeline</strong> — closes the known gap where message storage and generation were separate routes</td></tr>
+  <tr><td>Memory</td><td>CRUD, review queue, audit-by-message</td><td>Audit endpoint returns exactly what the builder injected</td></tr>
+  <tr><td>Lorebook</td><td>CRUD, keyword test</td><td>Priority + scope respected in assembly</td></tr>
+  <tr><td>Corpus</td><td>upload, list, delete, search</td><td>Chunking + tagging pipeline behind a job</td></tr>
+  <tr><td>Media / Jobs</td><td>asset CRUD, job status/cancel/retry</td><td>Local storage default</td></tr>
+  <tr><td>Providers</td><td>list, health-check, select, test</td><td>Never auto-switch without opt-in</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="s04">
+  <div class="section-head"><div class="section-code">04 / data</div><div><h2>Data model (target schema)</h2><p>Evolved from the 23-model schema of the largest earlier codebase, minus what never shipped, plus what the catalogue needs. Migrations forward only — after Phase 0 backup.</p></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Entity</th><th>Purpose / key fields</th><th>Feeds</th></tr></thead><tbody>
+  <tr><td>LocalProfile</td><td>Single owner, PIN hash, preferences, consent flags</td><td>F-33</td></tr>
+  <tr><td>Character</td><td>Persona fields, language, voice style, boundaries, template flag</td><td>F-01</td></tr>
+  <tr><td>VisualProfile</td><td>Reference assets, consistency notes, generated portraits</td><td>F-02, F-27</td></tr>
+  <tr><td>Session</td><td>Mode, title, language, status, summary text, scene pointer</td><td>F-05/06/07</td></tr>
+  <tr><td>Participant</td><td>Character per session, display name, knowledge scope</td><td>F-09</td></tr>
+  <tr><td>Message</td><td>Role, participant, content, provider metadata, injected-context log</td><td>F-08, F-14</td></tr>
+  <tr><td>Memory</td><td>Type, scope, importance, expiry, status (approved/pending)</td><td>F-13</td></tr>
+  <tr><td>LorebookEntry</td><td>Keywords, priority, enabled, scope</td><td>F-18</td></tr>
+  <tr><td>Relationship</td><td>Pair, type, level, timeline events</td><td>F-03, F-16</td></tr>
+  <tr><td>SceneState</td><td>Location, time, present, phase, intensity</td><td>F-10, F-11</td></tr>
+  <tr><td>CorpusDoc / Chunk</td><td>Uploaded story, tags, embedded chunks</td><td>F-20</td></tr>
+  <tr><td>MediaAsset / GenerationJob</td><td>Files and long-running work with progress</td><td>F-26, F-34</td></tr>
+  <tr><td>ProviderConfig</td><td>Adapter, endpoint, key reference (never the key itself)</td><td>F-28</td></tr>
+  </tbody></table></div>
+  <div class="warn"><strong>Schema-drift rule.</strong><p>This project's history includes hand-patched schema scripts and a drifted migration chain. From Phase 0: every change is <code>prisma migrate dev</code>, reviewed in the diff, with a backup taken first. No patch scripts, no manual SQL against the live DB.</p></div>
+</section>
+
+<section id="s05">
+  <div class="section-head"><div class="section-code">05 / memory</div><div><h2>Context &amp; memory engine</h2><p>The feature that makes characters feel alive — and the one the earlier builds never wired end to end. It is application engineering, not model magic.</p></div></div>
+  <div class="grid2">
+    <article class="panel"><div class="micro">Per-reply assembly order</div>
+      <ol><li>Core identity + response style of each speaking character</li><li>Session premise, active scene state, present cast, relationship levels</li><li>Latest N turns (verbatim)</li><li>Rolling summary of older turns</li><li>Approved memories — ranked by relevance × importance, top-K within budget</li><li>Triggered lorebook entries</li><li>Retrieved corpus excerpts (style/context)</li><li>The user's message</li></ol>
+      <p class="small">A deterministic builder with unit tests on every ordering rule. The full assembled prompt is logged per message for the audit view (F-14).</p></article>
+    <article class="panel"><div class="micro">Memory lifecycle</div>
+      <ol><li><strong>Capture:</strong> after each turn the model may propose facts/relationship changes as structured output</li><li><strong>Review:</strong> pending items queue for one-tap approve/edit/reject (auto-approve only for types the owner enabled)</li><li><strong>Use:</strong> retrieval scores keyword + recency + importance; budget-capped</li><li><strong>Decay:</strong> unpinned episodic memories lose importance over time; facts persist</li><li><strong>Control:</strong> every memory visible, editable, pinnable, deletable — deletion provably changes future replies</li></ol>
+      <p class="small">No "infinite memory" claim anywhere in the UI. The honest claim is: curated, inspectable, budgeted.</p></article>
+  </div>
+  <div class="good"><strong>Example budget (7–8k-token window):</strong><p>identity 400 · scene/state 300 · last 12 turns 2,400 · summary 500 · memories top-8 ≈ 800 · lore hits ≈ 400 · corpus excerpts ≈ 600 · user message — remainder. Numbers are config, not code.</p></div>
+</section>
+
+<section id="s06">
+  <div class="section-head"><div class="section-code">06 / ai</div><div><h2>AI provider strategy — free, plural, honest</h2><p>One gateway, four adapter classes, explicit selection, visible capability. "Free" and "available" are provider facts that change; the app reports them, never promises them.</p></div></div>
+  <pre>interface ProviderAdapter {
+  id: string
+  capabilities(): Cap[]            // text | vision | tts | stt | image
+  healthCheck(): Promise&lt;Status&gt;   // latency, queue, quota signals
+  generateText(req): AsyncIterable&lt;Token&gt;
+  supports(task): boolean
+}
+// errors are typed: Quota | Asleep | Refused | Timeout | Network
+// gateway logs provider, model, latency, tokens per message</pre>
+  <div class="table-wrap"><table><thead><tr><th>Class</th><th>Default role</th><th>Designed-around limits</th></tr></thead><tbody>
+  <tr><td>Local GGUF / Ollama (PC host or phone)</td><td>Default private text path — offline, zero cost, uncensored-capable open weights</td><td>RAM/speed tiers shown per model; phone-class quality honestly labeled; PC-host mode documented</td></tr>
+  <tr><td>Hugging Face (Inference API / Spaces)</td><td>Optional remote text + image experiments</td><td>Quota, sleeping Spaces, queues, model rotation — surfaced in health check</td></tr>
+  <tr><td>OpenRouter free models</td><td>Optional remote text, widest model choice</td><td>Free-list rotation, rate limits, routing/data notes per model shown before enabling</td></tr>
+  <tr><td>Image / TTS / STT adapters</td><td>Presence &amp; visual features (P2+)</td><td>Free capacity is the bottleneck; every job is queued, cancellable, and failure-honest</td></tr>
+  </tbody></table></div>
+  <div class="grid2">
+    <article class="panel"><div class="micro">Selection &amp; fallback policy</div><p>Fallback happens only if the owner enabled it, and the switch is announced in the reply badge. A private local conversation is never silently routed to a cloud provider. Failed generation returns a typed error with a retry — never a canned fake reply pretending to be the character.</p></article>
+    <article class="panel"><div class="micro">Secrets</div><p>Keys live in the Android Keystore / OS keychain or a git-ignored <code>.env.local</code>; never in code, never in Git history. Phase 0 includes a secret-scan of the repo. The public repo contains zero real keys.</p></article>
+  </div>
+</section>
+
+<section id="s07">
+  <div class="section-head"><div class="section-code">07 / bengali</div><div><h2>Bengali language &amp; story corpus engine</h2><p>Standard written Bengali (চলিত মান বাংলা) as a first-class output, with the owner's own story library steering style — by retrieval, with training as a separate experiment.</p></div></div>
+  <div class="flow" aria-label="Corpus pipeline" style="grid-template-columns:repeat(4,1fr)">
+    <div class="flow-item"><strong>Upload</strong><small>txt / md / epub the owner controls</small></div>
+    <div class="flow-item"><strong>Normalize</strong><small>Unicode NFC, paragraph boundaries</small></div>
+    <div class="flow-item"><strong>Chunk &amp; tag</small><small>genre, register, vocabulary markers</small></div>
+    <div class="flow-item shared"><strong>Retrieve</strong><small>relevant excerpts into §05 slot 7</small></div>
+  </div>
+  <div class="grid2">
+    <article class="panel"><div class="micro">Register control</div><p>A per-character style guide states: standard written Bengali, no regional dialect slips, consistent pronoun forms, genre-appropriate vocabulary when enabled. The guide is a config file the owner edits — not hard-coded prompts scattered across routes.</p></article>
+    <article class="panel"><div class="micro">Quality gate (F-19)</div><p>A fixed 10-scenario evaluation set with a simple rubric (register correctness, consistency, character voice, no dialect drift, correct Bengali orthography). Scored by the owner each time the model changes. Feature F-19 is DONE only when the rubric passes.</p></article>
+  </div>
+  <div class="warn"><strong>What retrieval is not.</strong><p>Corpus retrieval changes prompts, not weights. It measurably steers style and vocabulary. Actual fine-tuning (LoRA) for voice or image identity needs capable hardware and is scheduled as an owner-run P3 experiment with go/no-go criteria — not as a free-tier promise.</p></div>
+</section>
+
+<section id="s08">
+  <div class="section-head"><div class="section-code">08 / presence</div><div><h2>Voice, calls, and POV — staged realism</h2><p>"Feels alive" is a latency, turn-taking, and continuity problem before it is a graphics problem. Each stage reuses the same engine and transcript.</p></div></div>
+  <div class="grid3">
+    <article class="panel"><div class="micro">Stage 1 · voice notes</div><h3>Push-to-talk in, speech out</h3><p>STT → pipeline (§03) → TTS with captions and interrupt. Bengali STT/TTS quality is evaluated first with the §07 rubric; text fallback is always one tap away.</p></article>
+    <article class="panel"><div class="micro">Stage 2 · voice call</div><h3>Continuous conversation</h3><p>Call UI over the same session: barge-in, mute, end. Transcript persists as ordinary messages, so memory keeps growing during calls.</p></article>
+    <article class="panel"><div class="micro">Stage 3 · POV scenes</div><h3>Full-screen first person</h3><p>The screen becomes the scene: framing, ambient motion, choice buttons driven by SceneState and the intimate scene engine (F-11). Explicitly a screen mode — no headset or haptics claim.</p></article>
+  </div>
+  <div class="good"><strong>Video-style calls (F-24, P3):</strong><p>Character portrait with audio-reactive motion and blink/idle animation. Honest label in UI. True generated live video stays on the deferred list until hardware and free capacity make it real.</p></div>
+</section>
+
+<section id="s09">
+  <div class="section-head"><div class="section-code">09 / android</div><div><h2>Android delivery</h2><p>Keep the Capacitor shell for v2.0 — a rewrite buys nothing yet. Treat it as a real app, not a wrapped page.</p></div></div>
+  <div class="grid2">
+    <article class="panel"><div class="micro">Shell hardening checklist</div>
+      <ul><li>Back button = real navigation, not app exit</li><li>Safe-area insets, keyboard resize, immersive POV mode</li><li>App-private storage for DB, media, corpus; no public folders</li><li>Lifecycle: process death restores the open session exactly</li><li>Offline states and provider-down screens for every view</li><li>Debug + release APK builds reproducible from a clean checkout</li></ul></article>
+    <article class="panel"><div class="micro">When native (Kotlin/Compose) is justified</div>
+      <ul><li>On-device GGUF inference needing NDK-level integration</li><li>Sub-100ms audio paths for call realism</li><li>Foreground services for long local jobs</li></ul>
+      <p class="small">Until then: Capacitor. Any native migration is its own phase with a data-migration doc — never a side task.</p></article>
+  </div>
+</section>
+
+<section id="s10">
+  <div class="section-head"><div class="section-code">10 / cost</div><div><h2>Infrastructure &amp; cost model</h2><p>Zero recurring cost is an architectural requirement, not a hope. Pick the deployment shape early — it changes the design.</p></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Shape</th><th>Stack</th><th>Cost</th><th>Trade-off</th></tr></thead><tbody>
+  <tr><td>A · Phone-first</td><td>API + SQLite-equivalent on device via Capacitor; local GGUF or remote text providers</td><td>0</td><td>Simplest to run daily; on-device model quality limited</td></tr>
+  <tr><td>B · Home PC host (recommended)</td><td>API + Postgres on the owner's PC; phone connects over LAN/tunnel; PC runs Ollama</td><td>0</td><td>Best quality/cost ratio; PC must be on for sessions</td></tr>
+  <tr><td>C · Free container</td><td>API on a free-tier host; DB on free-tier Postgres</td><td>0</td><td>Sleep/wake, quotas, key handling; acceptable as an experiment only</td></tr>
+  </tbody></table></div>
+  <p class="small"><strong>Recommendation:</strong> build the engine provider- and host-agnostic (it already is, per §06), ship daily use on Shape B, keep Shape A as the offline fallback. Postgres stays for the PC host; the schema (§04) is portable enough that Shape A is a configuration, not a rewrite.</p>
+</section>
+
+<section id="s11">
+  <div class="section-head"><div class="section-code">11 / roadmap</div><div><h2>Phased delivery with exit gates</h2><p>Five phases. No phase starts until the previous gate passes. Every task is one vertical slice an AI agent can complete in a session — with an acceptance test attached.</p></div></div>
+
+  <div class="phase"><div class="phase-label">Phase 0<br>Rescue &amp; freeze</div><div><h3>Make the current repo safe and known</h3><p>Backup, branch, inventory, build verification, secret scan, package-manager unification, schema-drift audit. Nothing is deleted; nothing new is built.</p><p><span class="check">Gate:</span> clean-checkout build matrix (web + Android) passes; inventory doc marks every earlier feature working / partial / stub / missing.</p></div></div>
+  <div class="phase"><div class="phase-label">Phase 1<br>Core loop</div><div><h3>The one flow that makes it a product</h3><p>Character CRUD → session → wired send-message pipeline (closing the storage/generation gap) → context engine with memory + lorebook injection → audit view → provider panel with one working adapter. All F-0 P0 features.</p><p><span class="check">Gate:</span> end-to-end test: create character, chat, restart app, reopen session — profile, history, and injected memories all present and audited.</p></div></div>
+  <div class="phase"><div class="phase-label">Phase 2<br>Modes &amp; continuity</div><div><h3>Three doors, growing characters</h3><p>Story-first import + corpus retrieval, ensemble mode with per-character knowledge, relationship growth, character learning with review queue, session branching, export/import.</p><p><span class="check">Gate:</span> a story-led 3-character session runs 50 messages with correct knowledge scoping and measurable relationship progression.</p></div></div>
+  <div class="phase"><div class="phase-label">Phase 3<br>Language &amp; presence</div><div><h3>Bengali, voice, and POV</h3><p>Bengali evaluation and register control, corpus style steering, voice notes, voice call mode, POV scene presentation with the intimate scene engine, first image adapter.</p><p><span class="check">Gate:</span> Bengali rubric passes; a voice session and a POV session both persist through the same pipeline as text.</p></div></div>
+  <div class="phase"><div class="phase-label">Phase 4<br>Advanced</div><div><h3>Only what proves itself</h3><p>Video-style calls (avatar), job worker for long media, consistency experiments (reference-conditioned images, optional LoRA), each with go/no-go criteria and no quota surprises.</p><p><span class="check">Gate:</span> every long job is cancellable and budgeted; no feature ships claiming more than it does.</p></div></div>
+
+  <h3>Task backlog (agent-ready)</h3>
+  <div class="task"><div class="task-id">T-01</div><div><strong>Backup, branch, freeze</strong><small>Full repo backup, tag <code>pre-v2</code>, branch <code>v2-main</code>. <b>Accept:</b> restore-from-backup rehearsed and documented.</small></div></div>
+  <div class="task"><div class="task-id">T-02</div><div><strong>Build matrix</strong><small>Clean checkout → install → type-check → tests → web build → Android debug APK. <b>Accept:</b> all green on a fresh clone; failures logged as inventory items.</small></div></div>
+  <div class="task"><div class="task-id">T-03</div><div><strong>Feature inventory verification</strong><small>Trace every claimed feature: screen → API → DB → response. <b>Accept:</b> inventory doc with the four states per feature.</small></div></div>
+  <div class="task"><div class="task-id">T-04</div><div><strong>Hygiene: package manager, secrets, drift</strong><small>One package manager; secret scan of history; audit patch scripts and drifted migrations. <b>Accept:</b> no real keys anywhere; migration chain documented.</small></div></div>
+  <div class="task"><div class="task-id">T-05</div><div><strong>contracts + domain packages</strong><small>Extract Zod contracts and domain rules from routes. <b>Accept:</b> routes import from packages; no inline duplicate schemas.</small></div></div>
+  <div class="task"><div class="task-id">T-06</div><div><strong>context-engine package</strong><small>Deterministic §05 builder with budget config. <b>Accept:</b> unit tests for ordering, budget cap, and memory ranking.</small></div></div>
+  <div class="task"><div class="task-id">T-07</div><div><strong>Provider gateway + first adapter</strong><small>Gateway, typed errors, health check; local GGUF/Ollama adapter. <b>Accept:</b> streaming reply + typed failure surfaced in UI.</small></div></div>
+  <div class="task"><div class="task-id">T-08</div><div><strong>Wire the send-message pipeline</strong><small>Close the gap: message send → context → provider → persist → metadata. <b>Accept:</b> audit endpoint matches builder log for the same message.</small></div></div>
+  <div class="task"><div class="task-id">T-09</div><div><strong>Memory + lorebook injection &amp; audit</strong><small>F-13/14/18 wired through the engine. <b>Accept:</b> deleting a memory changes the next reply's audit.</small></div></div>
+  <div class="task"><div class="task-id">T-10</div><div><strong>Rolling summary</strong><small>Background compaction of old turns. <b>Accept:</b> 200-message session prompt stays within budget.</small></div></div>
+  <div class="task"><div class="task-id">T-11</div><div><strong>Phase-1 E2E suite</strong><small>Restart-survival test, provider-failure test, ownership test. <b>Accept:</b> suite green in CI or scripted run.</small></div></div>
+  <div class="task"><div class="task-id">T-12</div><div><strong>Corpus ingestion pipeline</strong><small>Upload → normalize → chunk → tag as jobs. <b>Accept:</b> a 5k-word file ingests and is searchable.</small></div></div>
+  <div class="task"><div class="task-id">T-13</div><div><strong>Corpus retrieval into context</strong><small>Slot-7 injection with audit. <b>Accept:</b> style of replies measurably shifts with corpus on/off.</small></div></div>
+  <div class="task"><div class="task-id">T-14</div><div><strong>Bengali style guide + evaluation set</strong><small>Config-file register guide; 10-scenario rubric. <b>Accept:</b> owner-scored rubric recorded per model change.</small></div></div>
+  <div class="task"><div class="task-id">T-15</div><div><strong>Story-first mode</strong><small>F-06 end to end. <b>Accept:</b> imported story beats appear in audit; divergence on request works.</small></div></div>
+  <div class="task"><div class="task-id">T-16</div><div><strong>Ensemble mode + knowledge scoping</strong><small>F-07, F-09. <b>Accept:</b> private-fact leak test passes across 3 characters.</small></div></div>
+  <div class="task"><div class="task-id">T-17</div><div><strong>Relationship growth + learning queue</strong><small>F-16, F-17. <b>Accept:</b> scripted interaction raises level; rejected trait never resurfaces.</small></div></div>
+  <div class="task"><div class="task-id">T-18</div><div><strong>Voice notes</strong><small>F-22. <b>Accept:</b> spoken turn persists identically to typed; interrupt works.</small></div></div>
+  <div class="task"><div class="task-id">T-19</div><div><strong>Voice call mode</strong><small>F-23. <b>Accept:</b> 5-minute call → clean end, ordered transcript, no Android lifecycle loss.</small></div></div>
+  <div class="task"><div class="task-id">T-20</div><div><strong>POV scene view + intimate scene engine</strong><small>F-25, F-11. <b>Accept:</b> phase transitions logged; intensity setting changes the ladder; exit preserves timeline.</small></div></div>
+  <div class="task"><div class="task-id">T-21</div><div><strong>Image adapter + consistency test set</strong><small>F-26, start of F-27. <b>Accept:</b> fixed prompt set scored for same-character consistency.</small></div></div>
+  <div class="task"><div class="task-id">T-22</div><div><strong>Video-style call (avatar)</strong><small>F-24. <b>Accept:</b> 60s stable on target device; honest UI label.</small></div></div>
+  <div class="task"><div class="task-id">T-23</div><div><strong>Job worker</strong><small>F-34. <b>Accept:</b> cancel leaves no orphans; retry is idempotent.</small></div></div>
+  <div class="task"><div class="task-id">T-24</div><div><strong>Export / import everything</strong><small>F-30. <b>Accept:</b> round-trip restore verified on a fresh install.</small></div></div>
+</section>
+
+<section id="s12">
+  <div class="section-head"><div class="section-code">12 / governance</div><div><h2>Governance: never lose this app again</h2><p>Three codebases were built and lost features between them. The fix is process, not more code.</p></div></div>
+  <h3>Consolidation decision (from the repository comparison)</h3>
+  <div class="table-wrap"><table><thead><tr><th>Source</th><th>Decision</th></tr></thead><tbody>
+  <tr><td>IMG-VDO (largest, 23-model schema, Docker, tests, Android)</td><td><strong>Base codebase.</strong> Stabilized in place; schema evolved forward per §04.</td></tr>
+  <tr><td>intimate-rp-studio (context/ai injection, free-provider fallback, docs discipline)</td><td><strong>Port the context-injection approach and docs conventions</strong> into the engine — they were the only working memory-injection in any build.</td></tr>
+  <tr><td>image-video-storybook (older 12-model version)</td><td><strong>Reference only.</strong> Its dashboard API contract was consistent where the larger build regressed — use it to fix the dashboard response shape.</td></tr>
+  <tr><td>Live repo's separate message-storage and generation routes</td><td><strong>Close the wiring gap</strong> via the §03 pipeline — the single most important fix in Phase 1.</td></tr>
+  <tr><td>carnal-roulette (standalone, imported by nothing)</td><td><strong>Decide explicitly:</strong> archive out of the main tree or integrate behind the §08 stage plan. Not left ambiguous again.</td></tr>
+  </tbody></table></div>
+  <h3>Documents that own the truth</h3>
+  <div class="grid3">
+    <article class="panel"><div class="micro">FEATURES.v2.md</div><p>§02 of this blueprint, verbatim, versioned. Scope changes are edits with a version bump — never silent. Superseded versions are kept in <code>docs/history/</code>.</p></article>
+    <article class="panel"><div class="micro">STATUS.md</div><p>One line per feature: state (planned/partial/done), phase, last verified date, next task ID. Updated at the end of every agent session.</p></article>
+    <article class="panel"><div class="micro">ADR/</div><p>Short decision records: provider choices, deployment shape, native migration triggers. One page each: context → decision → consequences.</p></article>
+  </div>
+  <h3>AI-agent session protocol</h3>
+  <ol>
+    <li>Open every session with: current task ID, its acceptance test, and the files allowed to change.</li>
+    <li>Agent must inspect before editing and present a short plan + file list first.</li>
+    <li>One vertical slice per session. Mixing tasks is refused.</li>
+    <li>No destructive DB commands without a same-day backup and explicit owner approval.</li>
+    <li>Session ends with: tests run + results, diff summary, STATUS.md and task checkbox updated, next task named.</li>
+    <li>A feature marked done without its acceptance test passing is a defect, logged as such.</li>
+  </ol>
+</section>
+
+<section id="s13">
+  <div class="section-head"><div class="section-code">13 / risks</div><div><h2>Risk register &amp; testing strategy</h2><p>Known failure modes — most of them already lived through in this project's history.</p></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Risk</th><th>Likelihood</th><th>Mitigation</th></tr></thead><tbody>
+  <tr><td>Free-tier model list/quotas change or vanish</td><td>High</td><td>Provider-agnostic gateway (§06); local path always functional; capability display, no lock-in</td></tr>
+  <tr><td>Hugging Face Spaces sleep / queue at call time</td><td>High</td><td>Health check before session; typed Asleep error; explicit fallback opt-in</td></tr>
+  <tr><td>Phone RAM too small for good local models</td><td>Medium</td><td>Shape B (PC host) as primary; model-size guidance in UI</td></tr>
+  <tr><td>Bengali STT/TTS quality below bar</td><td>Medium</td><td>Rubric gate before shipping F-22/23; text fallback always present</td></tr>
+  <tr><td>Identity drift in generated portraits</td><td>High</td><td>Consistency test set (T-21); P3 label; no UI promise beyond what scores show</td></tr>
+  <tr><td>Schema drift / hand-patched migrations (history!)</td><td>Medium</td><td>§04 rule: forward migrations only, backup first, drift audit in T-04</td></tr>
+  <tr><td>Agent marks features done unverified (history!)</td><td>High</td><td>Acceptance-test traceability (§02) + session protocol (§12)</td></tr>
+  <tr><td>Another silent feature loss between rebuilds</td><td>High</td><td>FEATURES.v2.md as single source; STATUS.md states; consolidation decision frozen (§12)</td></tr>
+  <tr><td>Secrets leak into the public repo</td><td>Medium</td><td>T-04 secret scan; Keystore/env-only storage; public repo stays clean</td></tr>
+  </tbody></table></div>
+  <h3>Test strategy</h3>
+  <div class="grid2">
+    <article class="panel"><div class="micro">Automated</div><ul><li><strong>Unit:</strong> context builder (ordering, budget, ranking), memory decay, scene state machine transitions</li><li><strong>Integration:</strong> every API group against a throwaway DB; ownership and validation paths</li><li><strong>E2E:</strong> Phase-1 restart-survival script; provider-failure simulation; branch/export round-trip</li><li><strong>Build:</strong> clean-checkout matrix green before any merge</li></ul></article>
+    <article class="panel"><div class="micro">Human (the owner)</div><ul><li>Bengali rubric per model change (T-14)</li><li>Presence feel: call latency, interrupt responsiveness</li><li>Monthly walkthrough: random 3 sessions reopened, memory audited</li></ul></article>
+  </div>
+</section>
+
+<section id="s14">
+  <div class="section-head"><div class="section-code">14 / appendix</div><div><h2>Deferred list, sources, glossary</h2><p>Explicit honesty about what is NOT promised, so nothing silently fails later.</p></div></div>
+  <div class="grid2">
+    <article class="panel"><div class="micro">Explicitly deferred / best-effort</div>
+      <ul><li>Real-time synthetic video of the character (avatar stands in, F-24)</li><li>Guaranteed face identity across all generated media (measured, not promised, F-27)</li><li>Fine-tuned weights for voice/image on free tiers (owner-run experiment only)</li><li>Headset VR / haptics (POV is a screen mode by design)</li><li>Any claim of "infinite memory" (budgeted, curated, audited — by design)</li></ul></article>
+    <article class="panel"><div class="micro">Glossary</div>
+      <ul><li><strong>Session engine</strong> — the single §03 pipeline all modes share</li><li><strong>Register</strong> — চলিত মান বাংলা, standard written Bengali</li><li><strong>Corpus</strong> — the owner's uploaded story library used for retrieval</li><li><strong>Knowledge scope</strong> — which facts each character may reveal</li><li><strong>Gate</strong> — the exit test a phase must pass before the next begins</li></ul></article>
+  </div>
+  <p class="small">This blueprint consolidates: the owner's full requirements (three start modes, cast scenes, memory and growth, standard Bengali with a story corpus, voice and call presence, POV scenes, visual consistency, multi-provider free AI, Android-first, zero cost); the three earlier codebase comparisons (IMG-VDO as base, intimate-rp-studio's injection approach, image-video-storybook's dashboard contract); and the previously identified wiring gap in the live repository's conversation routes. It is the planning document — execution happens in the repository through the §12 protocol.</p>
+</section>
+</main>
+<footer class="wrap footer"><strong>Master Build Blueprint v2.0 — the single source of truth.</strong> Features are only "done" when their acceptance tests pass; phases only advance through their gates; scope lives in FEATURES.v2.md and never silently shrinks. Print this file (browser print → save as PDF) for a paper copy, or ask for the PDF version directly.</footer>
+</body>
+</html>
