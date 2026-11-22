@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model LocalProfile {
+  id        String   @id @default(uuid())
+  pinHash   String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Character {
+  id          String   @id @default(uuid())
+  name        String
+  age         Int?
+  gender      String?
+  personality String?
+  backstory   String?
+  voiceStyle  String?
+  language    String   @default("en")
+  isTemplate  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sessions      SessionParticipant[]
+  memories      Memory[]
+  visualProfile VisualProfile?
+}
+
+model VisualProfile {
+  id           String  @id @default(uuid())
+  characterId  String  @unique
+  referenceUrl String?
+  portraitUrl  String?
+  notes        String?
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  title     String
+  mode      String
+  status    String   @default("ACTIVE")
+  language  String   @default("en")
+  summary   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants SessionParticipant[]
+  messages     Message[]
+  sceneState   SceneState?
+}
+
+model SessionParticipant {
+  id             String @id @default(uuid())
+  sessionId      String
+  characterId    String
+  displayName    String
+  knowledgeScope String @default("ALL")
+
+  session   Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, characterId])
+}
+
+model Message {
+  id            String   @id @default(uuid())
+  sessionId     String
+  participantId String?
+  role          String
+  content       String
+  provider      String?
+  model         String?
+  latencyMs     Int?
+  createdAt     DateTime @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model Memory {
+  id          String   @id @default(uuid())
+  characterId String?
+  sessionId   String?
+  type        String
+  content     String
+  importance  Int      @default(5)
+  scope       String   @default("GLOBAL")
+  isPinned    Boolean  @default(false)
+  isApproved  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  character Character? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+}
+
+model LorebookEntry {
+  id        String  @id @default(uuid())
+  keywords  String
+  content   String
+  priority  Int     @default(5)
+  scope     String  @default("GLOBAL")
+  isEnabled Boolean @default(true)
+  createdAt DateTime @default(now())
+}
+
+model SceneState {
+  id         String  @id @default(uuid())
+  sessionId  String  @unique
+  location   String?
+  timeOfDay  String?
+  phase      String  @default("INTRO")
+  intensity  Int     @default(5)
+  presentIds String
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model ProviderConfig {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  adapter   String
+  endpoint  String?
+  isDefault Boolean  @default(false)
+  isEnabled Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model MediaAsset {
+  id          String   @id @default(uuid())
+  filename    String
+  mimeType    String
+  size        Int
+  url         String
+  sessionId   String?
+  characterId String?
+  createdAt   DateTime @default(now())
+}
+
+model GenerationJob {
+  id        String   @id @default(uuid())
+  type      String
+  status    String   @default("QUEUED")
+  progress  Int      @default(0)
+  resultUrl String?
+  error     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
