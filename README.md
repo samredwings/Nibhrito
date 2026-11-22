@@ -28,8 +28,13 @@ A local-first private narrative companion and continuity engine for Android.
 ## Quick Start
 
 ```bash
+# Install dependencies
 pnpm install
+
+# Setup database
 cd apps/api && npx prisma migrate dev && npx prisma generate
+
+# Start development
 pnpm dev
 ```
 

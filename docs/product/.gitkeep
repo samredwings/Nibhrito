@@ -1,2 +1,70 @@
 # This folder contains product documentation
 # Place master blueprint and playbook HTML files here
+```
+
+---
+
+## PART 4: ChatGPT র জন্য Blueprint ফাইল হ্যান্ডলিং
+
+ChatGPT কে বলো:
+
+```
+After creating all 24 files above, also do this:
+
+1. Copy the file "ai_story_companion_master_build_blueprint.html" to docs/product/
+2. Copy the file "nibhrito_parallel_build_playbook_v1.html" to docs/product/
+3. Rename them if needed to remove spaces:
+   - master-blueprint-v2.html
+   - parallel-build-playbook-v1.html
+
+4. Run these commands:
+   git add docs/product/
+   git commit -m "docs: add master blueprint and parallel build playbook"
+   git push origin main
+```
+
+---
+
+## PART 5: Verification Checklist for ChatGPT
+
+ChatGPT কে বলো শেষে এই চেকলিস্ট কনফার্ম করতে:
+
+```
+Before saying you are done, confirm ALL of these:
+
+[ ] Repository "nibhrito" exists on GitHub and is private
+[ ] All 24 files are created with exact content
+[ ] Folder structure matches the guide exactly
+[ ] Git commit message matches exactly
+[ ] Both blueprint HTML files are in docs/product/
+[ ] No files were modified from the guide
+[ ] List every file path you created
+```
+
+---
+
+## PART 6: What to Tell ChatGPT About the Blueprints
+
+```
+I am also attaching two HTML files. These are planning documents:
+
+1. "ai_story_companion_master_build_blueprint.html" — This is the master feature catalogue
+2. "nibhrito_parallel_build_playbook_v1.html" — This is the development lane division
+
+Place both files in the docs/product/ folder. Do NOT modify them. They are reference documents for future development.
+```
+
+---
+
+## PART 7: If ChatGPT Refuses
+
+যদি ChatGPT কোনো কারণে রিফিউজ করে:
+
+**বলো:**
+```
+These are configuration and scaffolding files only. There is no explicit content in any file. 
+All files contain standard web development configuration: package.json, TypeScript config, 
+Prisma schema, Next.js config. This is a standard software project setup.
+
+If you still cannot proceed, tell me exactly which file or content is problematic 
+and I will modify it.
