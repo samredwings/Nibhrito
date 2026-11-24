@@ -1,0 +1,6 @@
+data: {"choices":[{"delta":{"content":"Hello "}}]}
+
+data: {"choices":[{"delta":{"content":"from OpenRouter."}}]}
+
+data: [DONE]
+

@@ -39,3 +39,4 @@ export interface MemoryRankingResult {
   score: number
   reasons: string[]
 }
+export type MemoryUpdateInput = Partial<MemoryCreateInput>

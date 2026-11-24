@@ -50,8 +50,8 @@ router.post('/', async (req, res) => {
     const session = await prisma.session.create({ data })
     res.status(201).json({ data: session })
   } catch (err) {
-    if (err instanceof ZodError) {
-      res.status(400).json({ error: 'VALIDATION_ERROR', details: err.errors })
+    if (err instanceof ZodError || (err instanceof Error && err.name === 'ZodError')) {
+      res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Invalid request data', details: err instanceof ZodError ? err.errors : (err as Error & { errors?: unknown[] }).errors ?? [] })
       return
     }
     console.error('Failed to create session:', err)
@@ -69,8 +69,8 @@ router.patch('/:id', async (req, res) => {
     })
     res.json({ data: session })
   } catch (err) {
-    if (err instanceof ZodError) {
-      res.status(400).json({ error: 'VALIDATION_ERROR', details: err.errors })
+    if (err instanceof ZodError || (err instanceof Error && err.name === 'ZodError')) {
+      res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Invalid request data', details: err instanceof ZodError ? err.errors : (err as Error & { errors?: unknown[] }).errors ?? [] })
       return
     }
     console.error('Failed to update session:', err)

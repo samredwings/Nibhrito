@@ -118,6 +118,7 @@ export function createOllamaProvider(config: OllamaProviderConfig): ProviderAdap
 
         yield { type: 'done' as const }
       } catch (err) {
+        if (signal?.aborted) return
         if (err instanceof ProviderError) {
           yield {
             type: 'error' as const,

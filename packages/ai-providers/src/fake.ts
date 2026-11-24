@@ -41,6 +41,9 @@ export function createFakeProvider(options: FakeProviderOptions = {}): ProviderA
           await new Promise((resolve) => setTimeout(resolve, delayMs))
         }
 
+        // The signal may abort while the delay is pending.
+        if (signal?.aborted) return
+
         yield {
           type: 'delta' as const,
           text: words[i] + (i < words.length - 1 ? ' ' : ''),

@@ -2,8 +2,8 @@
   "name": "@nibhrito/context-engine",
   "version": "0.1.0",
   "private": true,
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/context-engine/src/index.js",
+  "types": "dist/context-engine/src/index.d.ts",
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",

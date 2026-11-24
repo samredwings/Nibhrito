@@ -84,14 +84,27 @@ model Message {
   session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }
 
+enum MemoryType {
+  FACT
+  EPISODE
+  RELATIONSHIP
+  WORLD
+}
+
+enum MemoryScope {
+  GLOBAL
+  SESSION
+  CHARACTER
+}
+
 model Memory {
   id          String   @id @default(uuid())
   characterId String?
   sessionId   String?
-  type        String
+  type        MemoryType
   content     String
   importance  Int      @default(5)
-  scope       String   @default("GLOBAL")
+  scope       MemoryScope @default(GLOBAL)
   isPinned    Boolean  @default(false)
   isApproved  Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -117,7 +130,7 @@ model SceneState {
   timeOfDay  String?
   phase      String  @default("INTRO")
   intensity  Int     @default(5)
-  presentIds String
+  presentIds String[] @default([])
 
   session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }

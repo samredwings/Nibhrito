@@ -16,7 +16,7 @@
     "db:migrate": "cd apps/api && npx prisma migrate dev",
     "db:generate": "cd apps/api && npx prisma generate",
     "db:studio": "cd apps/api && npx prisma studio",
-    "lane:test": "echo 'Run: pnpm lane:test <lane-name>'",
+    "lane:test": "bash scripts/lane-test.sh",
     "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {

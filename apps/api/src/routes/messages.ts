@@ -1,12 +1,24 @@
 import { Router } from 'express'
 import { prisma } from '../lib/prisma'
 import { ports } from '../lib/ports'
-import { assembleContext } from '@nibhrito/context-engine'
+import { assembleContext, compactSummary } from '@nibhrito/context-engine'
 import { SendMessageSchema } from '@nibhrito/contracts'
-import type { Memory, SceneState } from '@nibhrito/contracts'
+import type { ScenePhase, SceneState } from '@nibhrito/contracts'
 import { ZodError } from 'zod'
 
 const router: Router = Router()
+const SUMMARY_MESSAGE_THRESHOLD = 24
+const SUMMARY_RECENT_WINDOW = 12
+const SUMMARY_MAX_LENGTH = 4000
+
+function isScenePhase(value: string): value is ScenePhase {
+  return value === 'INTRO' || value === 'BUILD' || value === 'INTIMATE' || value === 'CLIMAX' || value === 'AFTERCARE'
+}
+
+function mapSceneState(scene: { id: string; sessionId: string; location: string | null; timeOfDay: string | null; phase: string; intensity: number; presentIds: string[] } | null): SceneState | null {
+  if (!scene) return null
+  return { ...scene, phase: isScenePhase(scene.phase) ? scene.phase : 'INTRO' }
+}
 
 // GET /api/sessions/:sessionId/messages
 router.get('/session/:sessionId', async (req, res) => {
@@ -112,10 +124,10 @@ router.post('/session/:sessionId', async (req, res) => {
         mode: session.mode,
         summary: session.summary,
       },
-      sceneState: session.sceneState as unknown as SceneState | null,
+      sceneState: mapSceneState(session.sceneState),
       participants: session.participants,
       recentMessages: orderedMessages,
-      memories: memories as unknown as Memory[],
+      memories,
       loreEntries,
       corpusChunks: [], // TODO: implement corpus retrieval
       userMessage: input.content,
@@ -132,6 +144,16 @@ router.post('/session/:sessionId', async (req, res) => {
     const startTime = Date.now()
 
     // Generate response
+    const generationController = new AbortController()
+    const abortIncompleteRequest = () => {
+      if (!req.complete) generationController.abort()
+    }
+    const abortDisconnectedResponse = () => {
+      if (!res.writableEnded) generationController.abort()
+    }
+    req.on('close', abortIncompleteRequest)
+    res.on('close', abortDisconnectedResponse)
+
     const stream = ports.provider.generate(
       {
         model: 'default',
@@ -140,7 +162,7 @@ router.post('/session/:sessionId', async (req, res) => {
         temperature: 0.7,
         maxTokens: 1024,
       },
-      req.body.signal
+      generationController.signal
     )
 
     let assistantContent = ''
@@ -156,6 +178,10 @@ router.post('/session/:sessionId', async (req, res) => {
     }
 
     const latencyMs = Date.now() - startTime
+    req.off('close', abortIncompleteRequest)
+    res.off('close', abortDisconnectedResponse)
+
+    if (generationController.signal.aborted) return
 
     if (errorOccurred) {
       res.status(503).json({
@@ -180,6 +206,25 @@ router.post('/session/:sessionId', async (req, res) => {
       },
     })
 
+    // Recompute the deterministic rolling summary once a session grows beyond the recent-turn window.
+    try {
+      const messageCount = await prisma.message.count({ where: { sessionId: input.sessionId } })
+      if (messageCount > SUMMARY_MESSAGE_THRESHOLD) {
+        const olderMessages = await prisma.message.findMany({
+          where: { sessionId: input.sessionId },
+          orderBy: { createdAt: 'asc' },
+          take: messageCount - SUMMARY_RECENT_WINDOW,
+        })
+        const summary = compactSummary({
+          messagesToSummarize: olderMessages.map((message) => ({ role: message.role, content: message.content })),
+          maxLength: SUMMARY_MAX_LENGTH,
+        })
+        await prisma.session.update({ where: { id: input.sessionId }, data: { summary: summary.summary } })
+      }
+    } catch (summaryError) {
+      console.error('Failed to update rolling session summary:', summaryError)
+    }
+
     res.status(201).json({
       data: {
         userMessage,
@@ -199,8 +244,8 @@ router.post('/session/:sessionId', async (req, res) => {
       },
     })
   } catch (err) {
-    if (err instanceof ZodError) {
-      res.status(400).json({ error: 'VALIDATION_ERROR', details: err.errors })
+    if (err instanceof ZodError || (err instanceof Error && err.name === 'ZodError')) {
+      res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Invalid request data', details: err instanceof ZodError ? err.errors : (err as Error & { errors?: unknown[] }).errors ?? [] })
       return
     }
     console.error('Failed to send message:', err)

@@ -45,8 +45,8 @@ router.post('/', async (req, res) => {
     const character = await prisma.character.create({ data })
     res.status(201).json({ data: character })
   } catch (err) {
-    if (err instanceof ZodError) {
-      res.status(400).json({ error: 'VALIDATION_ERROR', details: err.errors })
+    if (err instanceof ZodError || (err instanceof Error && err.name === 'ZodError')) {
+      res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Invalid request data', details: err instanceof ZodError ? err.errors : (err as Error & { errors?: unknown[] }).errors ?? [] })
       return
     }
     console.error('Failed to create character:', err)
@@ -64,8 +64,8 @@ router.patch('/:id', async (req, res) => {
     })
     res.json({ data: character })
   } catch (err) {
-    if (err instanceof ZodError) {
-      res.status(400).json({ error: 'VALIDATION_ERROR', details: err.errors })
+    if (err instanceof ZodError || (err instanceof Error && err.name === 'ZodError')) {
+      res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Invalid request data', details: err instanceof ZodError ? err.errors : (err as Error & { errors?: unknown[] }).errors ?? [] })
       return
     }
     console.error('Failed to update character:', err)

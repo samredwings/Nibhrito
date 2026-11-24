@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+
+:root { color-scheme: dark; --bg: #101210; --panel: #191d19; --line: #2b322c; --muted: #a2ada2; --text: #edf2e9; --accent: #b6d2ac; }
+* { box-sizing: border-box; }
+html, body { min-height: 100%; margin: 0; }
+body { background: radial-gradient(ellipse at 50% -15%, #29372b 0, var(--bg) 48rem); color: var(--text); font-family: 'DM Sans', sans-serif; }
+a { color: inherit; text-decoration: none; }
+.shell { width: min(920px, calc(100% - 40px)); margin: 0 auto; }
+.topbar { height: 76px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.brand { font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.local-label, .count, .status { color: var(--accent); font-size: 12px; letter-spacing: .06em; }
+.hero { padding: 88px 0 70px; max-width: 680px; }
+.eyebrow { color: var(--accent); font-size: 11px; letter-spacing: .18em; font-weight: 700; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { font: 500 clamp(38px, 7vw, 64px)/1.08 'Playfair Display', Georgia, serif; margin: 20px 0; }
+.intro { max-width: 530px; color: var(--muted); font-size: 17px; line-height: 1.7; }
+.sessions { border-top: 1px solid var(--line); padding-top: 28px; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; }
+h2 { font: 500 30px 'Playfair Display', Georgia, serif; margin-bottom: 20px; }
+.count { border: 1px solid var(--line); border-radius: 99px; padding: 6px 11px; }
+.state, .empty { color: var(--muted); padding: 26px 0; }
+.error { color: #e7a09a; }
+.empty { border: 1px dashed var(--line); border-radius: 12px; padding: 28px; }
+.empty h3 { color: var(--text); margin-bottom: 8px; }
+.empty p { margin: 0; }
+.session-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.session-card { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 22px; background: color-mix(in srgb, var(--panel) 88%, transparent); border: 1px solid var(--line); border-radius: 12px; }
+.session-card h3 { margin-bottom: 7px; font-size: 16px; }
+.session-card p { color: var(--muted); margin: 0; font-size: 13px; }
+.status { text-transform: uppercase; }
+footer { margin: 64px 0 30px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; letter-spacing: .04em; }
+@media (max-width: 560px) { .hero { padding: 64px 0 50px; } .session-card { align-items: flex-start; flex-direction: column; } .local-label { font-size: 10px; } }

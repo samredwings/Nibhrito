@@ -12,3 +12,5 @@ export const MemoryCreateSchema = z.object({
 })
 
 export type MemoryCreateSchema = z.infer<typeof MemoryCreateSchema>
+export const MemoryUpdateSchema = MemoryCreateSchema.partial()
+export type MemoryUpdateSchemaType = z.infer<typeof MemoryUpdateSchema>

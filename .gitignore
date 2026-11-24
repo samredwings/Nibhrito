@@ -53,3 +53,5 @@ apps/web/android/capacitor-cordova-android-plugins/
 *.pem
 *.key
 secrets/
+# Turborepo local cache
+.turbo/

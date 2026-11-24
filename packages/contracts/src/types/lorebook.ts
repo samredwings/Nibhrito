@@ -13,3 +13,12 @@ export interface LorebookTriggerResult {
   matchedKeywords: string[]
   relevanceScore: number
 }
+export interface LorebookEntryCreateInput {
+  keywords: string
+  content: string
+  priority?: number
+  scope?: string
+  isEnabled?: boolean
+}
+
+export type LorebookEntryUpdateInput = Partial<LorebookEntryCreateInput>

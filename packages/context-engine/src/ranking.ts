@@ -4,7 +4,13 @@ export function rankMemories(
   inputs: MemoryRankingInput[],
   maxResults: number
 ): MemoryRankingResult[] {
-  const scored = inputs.map((input): MemoryRankingResult => {
+  const eligibleInputs = inputs.filter(({ memory, sessionId, characterId }) => {
+    if (memory.scope === 'CHARACTER') return memory.characterId === characterId
+    if (memory.scope === 'SESSION') return memory.sessionId === sessionId
+    return true
+  })
+
+  const scored = eligibleInputs.map((input): MemoryRankingResult => {
     const memory = input.memory
     let score = 0
     const reasons: string[] = []
