@@ -21,6 +21,26 @@ router.get('/', async (_req, res) => {
   res.json({ data: sessions })
 })
 
+// GET /api/sessions/:sessionId/participants
+// Retained for compatibility with clients that use the original endpoint.
+router.get('/:sessionId/participants', async (req, res) => {
+  const session = await prisma.session.findUnique({
+    where: { id: req.params.sessionId },
+    select: { id: true },
+  })
+  if (!session) {
+    res.status(404).json({ error: 'NOT_FOUND', message: 'Session not found' })
+    return
+  }
+
+  const participants = await prisma.sessionParticipant.findMany({
+    where: { sessionId: session.id },
+    include: { character: true },
+    orderBy: { id: 'asc' },
+  })
+  res.json({ data: participants })
+})
+
 // GET /api/sessions/:id
 router.get('/:id', async (req, res) => {
   const session = await prisma.session.findUnique({
@@ -41,18 +61,18 @@ router.get('/:id', async (req, res) => {
 // POST /api/sessions
 router.post('/', async (req, res) => {
   const input = SessionCreateSchema.parse(req.body)
-  const uniqueIds = [...new Set(input.characterIds)]
+  const characterIds = input.characterIds
 
   const found = await prisma.character.findMany({
-    where: { id: { in: uniqueIds } },
+    where: { id: { in: characterIds } },
     select: { id: true, name: true },
   })
-  if (found.length !== uniqueIds.length) {
+  if (found.length !== characterIds.length) {
     const known = new Set(found.map((character) => character.id))
     res.status(400).json({
       error: 'UNKNOWN_CHARACTER',
       message: 'One or more characters do not exist',
-      details: uniqueIds.filter((id) => !known.has(id)),
+      details: characterIds.filter((id) => !known.has(id)),
     })
     return
   }
@@ -131,9 +151,12 @@ router.post('/:id/participants', async (req, res) => {
         },
         include: { character: true },
       })
-      await tx.sceneState.updateMany({
+      // Older sessions may predate scene-state creation. Upsert keeps the
+      // participant list and scene presence in sync for both old and new rows.
+      await tx.sceneState.upsert({
         where: { sessionId: session.id },
-        data: { presentIds: { push: character.id } },
+        create: { sessionId: session.id, presentIds: [character.id] },
+        update: { presentIds: { push: character.id } },
       })
       return created
     })
