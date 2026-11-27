@@ -1,0 +1,34 @@
+name: Verify Nibhrito
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: nibhrito, POSTGRES_PASSWORD: nibhrito, POSTGRES_DB: nibhrito_test }
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U nibhrito -d nibhrito_test"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgresql://nibhrito:nibhrito@localhost:5432/nibhrito_test?schema=public
+      NODE_ENV: test
+      AI_PROVIDER: fake
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm --filter @nibhrito/api exec prisma migrate deploy --schema=prisma/schema.prisma
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm test

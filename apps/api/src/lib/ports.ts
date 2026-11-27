@@ -1,27 +1,86 @@
 import type { ProviderAdapter } from '@nibhrito/contracts'
-import { createFakeProvider, createOllamaProvider } from '@nibhrito/ai-providers'
+import {
+  createFakeProvider,
+  createHuggingFaceProvider,
+  createOllamaProvider,
+  createOpenRouterProvider,
+} from '@nibhrito/ai-providers'
 
-// Simple dependency injection container
+// Provider choice is explicit and fixed for the lifetime of this API process.
+// Set AI_PROVIDER to ollama, huggingface, openrouter, or fake.
 export interface AppPorts {
   provider: ProviderAdapter
 }
 
-function createPorts(): AppPorts {
-  const ollamaUrl = process.env.OLLAMA_URL
-  const ollamaModel = process.env.OLLAMA_MODEL || 'llama2'
-
-  if (ollamaUrl) {
-    return {
-      provider: createOllamaProvider({ baseUrl: ollamaUrl, model: ollamaModel }),
-    }
-  }
-
-  // Fallback to fake provider for development
+function unavailableProvider(reason: string): ProviderAdapter {
   return {
-    provider: createFakeProvider({
-      fixedResponse: 'This is a development response. Configure OLLAMA_URL to use a real model.',
-    }),
+    id: 'unconfigured',
+    name: 'AI provider not configured',
+    capabilities: () => ['TEXT'],
+    health: async () => ({ status: 'unavailable', reason }),
+    generate: async function* () {
+      yield {
+        type: 'error' as const,
+        error: { code: 'INTERNAL' as const, message: reason, retryable: false },
+      }
+    },
   }
 }
 
-export const ports = createPorts()
+function createProvider(): ProviderAdapter {
+  const selected = (process.env.AI_PROVIDER || (
+    process.env.OLLAMA_URL
+      ? 'ollama'
+      : process.env.NODE_ENV === 'production'
+        ? 'unconfigured'
+        : 'fake'
+  )).trim().toLowerCase()
+
+  if (selected === 'fake') {
+    return createFakeProvider({
+      fixedResponse: 'This is a development response. Configure AI_PROVIDER for a real model.',
+    })
+  }
+
+  if (selected === 'ollama') {
+    const baseUrl = process.env.OLLAMA_URL
+    if (!baseUrl) return unavailableProvider('AI_PROVIDER=ollama requires OLLAMA_URL.')
+    return createOllamaProvider({
+      baseUrl,
+      model: process.env.OLLAMA_MODEL || 'llama3.1',
+    })
+  }
+
+  if (selected === 'huggingface' || selected === 'hf') {
+    const apiKey = process.env.HUGGINGFACE_API_KEY
+    const model = process.env.HUGGINGFACE_MODEL
+    if (!apiKey || !model) {
+      return unavailableProvider('AI_PROVIDER=huggingface requires HUGGINGFACE_API_KEY and HUGGINGFACE_MODEL.')
+    }
+    return createHuggingFaceProvider({
+      apiKey,
+      model,
+      baseUrl: process.env.HUGGINGFACE_BASE_URL,
+    })
+  }
+
+  if (selected === 'openrouter') {
+    const apiKey = process.env.OPENROUTER_API_KEY
+    const model = process.env.OPENROUTER_MODEL
+    if (!apiKey || !model) {
+      return unavailableProvider('AI_PROVIDER=openrouter requires OPENROUTER_API_KEY and OPENROUTER_MODEL.')
+    }
+    return createOpenRouterProvider({
+      apiKey,
+      model,
+      siteUrl: process.env.OPENROUTER_SITE_URL,
+      appName: process.env.OPENROUTER_APP_NAME || 'Nibhrito',
+    })
+  }
+
+  return unavailableProvider('Unknown AI_PROVIDER. Choose ollama, huggingface, openrouter, or fake.')
+}
+
+export const ports: AppPorts = {
+  provider: createProvider(),
+}
