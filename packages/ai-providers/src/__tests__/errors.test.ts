@@ -26,6 +26,6 @@ describe('redact', () => {
   })
 
   it('keeps log summaries to the first 80 characters', () => {
-    expect(redact('x'.repeat(100))).toHaveLength(80)
+    expect(redact('info: ' + 'word '.repeat(20))).toHaveLength(80)
   })
 })
