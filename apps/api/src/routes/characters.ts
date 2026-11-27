@@ -1,9 +1,9 @@
-import { Router } from 'express'
+import { asyncRouter } from '../lib/async-router'
 import { prisma } from '../lib/prisma'
 import { CharacterCreateSchema, CharacterUpdateSchema } from '@nibhrito/contracts'
 import { ZodError } from 'zod'
 
-const router: Router = Router()
+const router = asyncRouter()
 
 // GET /api/characters
 router.get('/', async (_req, res) => {

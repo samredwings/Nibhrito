@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { asyncRouter } from '../lib/async-router'
 import { prisma } from '../lib/prisma'
 import { ports } from '../lib/ports'
 import { assembleContext, compactSummary } from '@nibhrito/context-engine'
@@ -6,7 +6,7 @@ import { SendMessageSchema } from '@nibhrito/contracts'
 import type { ScenePhase, SceneState } from '@nibhrito/contracts'
 import { ZodError } from 'zod'
 
-const router: Router = Router()
+const router = asyncRouter()
 const SUMMARY_MESSAGE_THRESHOLD = 24
 const SUMMARY_RECENT_WINDOW = 12
 const SUMMARY_MAX_LENGTH = 4000

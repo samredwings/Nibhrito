@@ -1,10 +1,10 @@
-import { Router } from 'express'
+import { asyncRouter } from '../lib/async-router'
 import type { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { MemoryCreateSchema, MemoryUpdateSchema } from '@nibhrito/contracts'
 import { ZodError } from 'zod'
 
-const router: Router = Router()
+const router = asyncRouter()
 
 function sendError(res: import('express').Response, err: unknown, operation: string): void {
   if (err instanceof ZodError || (err instanceof Error && err.name === 'ZodError')) {
